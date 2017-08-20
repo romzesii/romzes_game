@@ -57,12 +57,30 @@ class Actor {
 			throw new Error('actor не является типом Actor');
 		}
 
-		//??? не пересекается сам с собой
-		//??? Объект не пересекается с объектом расположенным очень далеко
-		//??? Объект не пересекается с объектом со смежными границами
-		//??? Объект не пересекается с объектом расположенным в той же точке, но имеющим отрицательный вектор размера
-		//??? Объект пересекается с объектом, который полностью содержится в нём
-		//??? Объект пересекается с объектом, который частично содержится в нём
+			if (actor.right < actor.left && actor.bottom < actor.top){
+				return false;
+			}
+
+		if (actor === this){
+			return false;
+		} //не пересекается сам с собой
+		/*
+		if((((actor.right > this.left) && (actor.right <= this.right)) && ((actor.top >= this.top) && (actor.top < this.bottom))) ||
+				(((actor.left >= this.left)&&(actor.left < this.right)) && ((actor.bottom > this.top)&&(actor.bottom <= this.bottom))) ||
+				(((actor.left >= this.left) && (actor.left < this.right)) && ((actor.top >= this.top)&&(actor.top < this.bottom))) ||
+				(((actor.right > this.left)&&(actor.right <= this.right)) && ((actor.bottom > this.top)&&(actor.bottom <= this.bottom))) ||
+				(((this.right > actor.left) && (this.right <= actor.right)) && ((this.top >= actor.top) && (this.top < actor.bottom))) ||
+				(((this.left >= actor.left)&&(this.left < actor.right)) && ((this.bottom > actor.top)&&(this.bottom <= actor.bottom))) ||
+				(((this.left >= actor.left) && (this.left < actor.right)) && ((this.top >= actor.top)&&(this.top < actor.bottom))) ||
+				(((this.right > actor.left)&&(this.right <= actor.right)) && ((this.bottom > actor.top)&&(this.bottom <= actor.bottom)))){
+			return true;
+		}
+		return false;
+		*/
+		if (actor.top >= this.bottom || actor.bottom <= this.top || actor.left >= this.right || actor.right <= this.left) {
+            return false;
+        }
+        return true; 
 	}
 
 }
