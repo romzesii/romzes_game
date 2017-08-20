@@ -87,5 +87,69 @@ class Actor {
 
 class Level {
 
-	constructor (){}
+	constructor (grid = [], actors = []){
+		this.grid = grid;
+		this.actors = actors;
+		this.status = null;
+		this.finishDelay = 1;
+
+		this.player = this.actors.find((item) => item.type === 'player');
+
+		//this.width = this.grid.reduce((maximum, current) => Math.max(current.length), 0) || 0;
+	}
+
+	get height(){
+		return this.grid.length;
+	}
+	get width(){
+		return this.grid.reduce((maximum, current) => Math.max(current.length), 0);
+	}
+
+	isFinished() {
+		return this.status !== null && this.finishDelay < 0;
+	}
+	actorAt(actor) {
+		if (!(actor instanceof Actor)){
+			throw new Error('В метод actorAt нужно передать объект типа Actor!');
+		}
+		return this.actors.find((item) => item.isIntersect(actor));
+	}
+	obstacleAt(pos, size) {
+		if(!(pos instanceof Vector) || !(size instanceof Vector)){
+			throw new Error('Позиция и размер должны быть аргументами типа Vector!');
+		}
+		if (pos.x < 0 || pos.y < 0 || pos.x + size.x  > this.width){
+			return 'wall';
+		} else if(pos.y + size.y > this.height) {
+			return 'lava';
+		} else {
+			return this.grid[Math.floor(pos.x)][Math.floor(pos.y)]; //???
+		}
+	}
+	removeActor(actor) {
+		let actorIndex = this.actors.indexOf(actor);
+
+		if(actorIndex !== -1) {
+			this.actors.splice(actorIndex, 1);
+		}
+	}
+	noMoreActors(type) {
+		return !this.actors.find((item) => item.type === type);
+		//return false;
+	}
+	playerTouched(obstacle, actor) {
+		if (this.status) return;
+		if (obstacle === 'lava' || obstacle === 'fireball'){
+			this.status = 'lost';
+			return;
+		}
+		if (obstacle === 'coin' && actor.type === 'coin'){
+			this.removeActor(actor);
+			if(this.actors.find(item => item.type === 'coin') === undefined){
+				this.status = 'won';
+				return;
+			}
+		}
+
+	}
 }
