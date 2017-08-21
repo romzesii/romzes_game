@@ -153,3 +153,30 @@ class Level {
 
 	}
 }
+
+class LevelParser {
+	constructor(dict = {}) {
+		this.dict = dict;
+	}
+	actorFromSymbol(symbol) {
+		if (!(symbol in this.dict)){
+			return undefined;
+		}
+		return this.dict[symbol];
+	}
+
+	obstacleFromSymbol(symbol) {
+		switch(symbol){
+			case 'x':
+				return 'wall';
+			case '!':
+				return 'lava';
+			default:
+				return undefined;
+		}
+	}
+	createGrid(array = []) {
+		//return array. //todo createGrid
+	}
+
+}
