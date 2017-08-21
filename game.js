@@ -22,7 +22,7 @@ class Vector {
 
 class Actor {
 
-	constructor (pos = new Vector(), size = new Vector(1,1), speed = new Vector()){
+	constructor(pos = new Vector(), size = new Vector(1,1), speed = new Vector()) {
 		if (!(pos instanceof Vector) || !(size instanceof Vector) || !(speed instanceof Vector)){
 			throw new Error('расположение не является объектом Vector');
 		}
@@ -94,6 +94,9 @@ class Level {
 		this.finishDelay = 1;
 
 		this.player = this.actors.find((item) => item.type === 'player');
+		if (this.player === undefined){
+			this.player = new Player();
+		}
 
 		//this.width = this.grid.reduce((maximum, current) => Math.max(current.length), 0) || 0;
 	}
@@ -145,7 +148,7 @@ class Level {
 		}
 		if (obstacle === 'coin' && actor.type === 'coin'){
 			this.removeActor(actor);
-			if(this.actors.find(item => item.type === 'coin') === undefined){
+			if(this.actors.find((item) => item.type === 'coin') === undefined){
 				this.status = 'won';
 				return;
 			}
@@ -153,6 +156,8 @@ class Level {
 
 	}
 }
+
+
 
 class LevelParser {
 	constructor(dict = {}) {
@@ -175,8 +180,32 @@ class LevelParser {
 				return undefined;
 		}
 	}
-	createGrid(array = []) {
+	createGrid(plan = []) {
 		//return array. //todo createGrid
+		if (plan.length === 0){
+			return [];
+		}
+		return plan.map((item) => item.split('').map((symbol) => this.obstacleFromSymbol(symbol)));
+
+	}
+	createActors(plan = []) {
+		if (plan.length === 0){
+			return [];
+		}
+		//todo createActors
+
+	}
+	parse(plan) {
+		return new Level(this.createGrid(plan), this.createActors(plan));
 	}
 
+}
+
+class Player extends Actor{
+	constructor(pos = new Vector()) {
+		super(pos.plus(new Vector(0, -0.5)), new Vector(0.8, 1.5), new Vector());
+	}
+	get type() {
+		return 'player';
+	}
 }
