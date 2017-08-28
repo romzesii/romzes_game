@@ -94,15 +94,14 @@ class Level {
 		this.finishDelay = 1;
 
 		this.player = this.actors.find((item) => item.type === 'player');
+
 		if (!this.player){
 			this.player = new Player();
 		}
-
-		//this.width = this.grid.reduce((maximum, current) => Math.max(current.length), 0) || 0;
 	}
 
 	get height(){
-		return this.grid.length;
+		return this.grid.length || 0;
 	}
 	get width(){
 		return this.grid.reduce((maximum, current) => Math.max(current.length), 0);
@@ -125,9 +124,17 @@ class Level {
 			return 'wall';
 		} else if(pos.y + size.y > this.height) {
 			return 'lava';
-		} else {
-			return this.grid[Math.floor(pos.x)][Math.floor(pos.y)]; //???
 		}
+			//return this.grid[Math.floor(pos.x)][Math.floor(pos.y)]; //??? //todo obstacleAt
+			for (let x = Math.floor(pos.x); x < Math.ceil(pos.x + size.x); x++) {			//floor ceil
+				for (let y = Math.floor(pos.y); y < Math.ceil(pos.y + size.y); y++) {		//floor ceil
+					if (this.grid[y][x] === 'wall') {
+						return 'wall';
+					} else if (this.grid[y][x] === 'lava') {
+						return 'lava';
+					}
+				}
+			}
 	}
 	removeActor(actor) {
 		let actorIndex = this.actors.indexOf(actor);
@@ -144,13 +151,11 @@ class Level {
 		if (this.status) return;
 		if (obstacle === 'lava' || obstacle === 'fireball'){
 			this.status = 'lost';
-			return;
 		}
 		if (obstacle === 'coin' && actor.type === 'coin'){
 			this.removeActor(actor);
 			if(this.actors.find((item) => item.type === 'coin') === undefined){
 				this.status = 'won';
-				return;
 			}
 		}
 	}
@@ -179,7 +184,7 @@ class LevelParser {
 		}
 	}
 	createGrid(plan = []) {
-		//return array. //todo createGrid
+
 		if (plan.length === 0){
 			return [];
 		}
@@ -190,13 +195,12 @@ class LevelParser {
 		if (plan.length === 0){
 			return [];
 		}
-		//todo createActors
 
-		//return plan.
+		//?
 		return plan.reduce((actors, row, y) => {row.split('').forEach((symbol, x) => {
-			const TypeOfObj = this.actorFromSymbol(symbol);
-			if (TypeOfObj && typeof TypeOfObj === 'function' && Actor.prototype.isPrototypeOf(new TypeOfObj())) {
-			actors.push(new TypeOfObj(new Vector(x, y)));
+			const ObjectType = this.actorFromSymbol(symbol);
+			if (ObjectType && typeof ObjectType === 'function' && Actor.prototype.isPrototypeOf(new ObjectType())) {
+			actors.push(new ObjectType(new Vector(x, y)));
 		}
 	});
 		return actors;
@@ -294,18 +298,18 @@ class Coin extends Actor{
 
 const schemas = [
 	[
+		'   o     ',
 		'         ',
 		'         ',
-		'    =    ',
 		'       o ',
 		'     !xxx',
 		' @       ',
-		'xxx!     ',
+		'xxxxx!   ',
 		'         '
 	],
 	[
 		'      v  ',
-		'    v    ',
+		'o   =    ',
 		'  v      ',
 		'        o',
 		'        x',
@@ -316,8 +320,12 @@ const schemas = [
 ];
 const actorDict = {
 	'@': Player,
-	'v': FireRain
-}
+	'v': FireRain,
+	'|': VerticalFireball,
+	'=': HorizontalFireball,
+	'o': Coin
+
+};
 const parser = new LevelParser(actorDict);
 runGame(schemas, parser, DOMDisplay)
 	.then(() => console.log('Вы выиграли приз!'));
